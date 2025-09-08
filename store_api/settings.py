@@ -38,11 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'ninja',
+    'ninja_jwt',
+    'ninja_extra',
+    
     'products',
     'cart',
     'users',
-    'ninja',
-    'ninja_jwt',
+    
 ]
 
 MIDDLEWARE = [

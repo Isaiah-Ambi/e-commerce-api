@@ -1,24 +1,25 @@
 from ninja import Router
-from .models import Cart, CartITem
-from products.models import Product
+from ninja_jwt.authentication import JWTAuth
+from .schemas import CartSchema, AddToCartSchema
+from .models import Cart, CartItem
 
 router = Router()
 
+def get_cart_for_user(user):
+    # Placeholder function to retrieve cart for a user
+    cart = Cart.objects.filter(user=user).first()
+    
+    if not cart:
+        cart = Cart.objects.create(user=user)
+    cart_items = CartItem.objects.filter(cart=cart)
+    return cart_items
 
-@router.get('/')
+@router.get('/', response=CartSchema, auth=JWTAuth())
 def get_cart(request):
-    if request.user.is_authenticated:
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        items = CartITem.objects.filter(cart=cart).select_related('product')
-        return {
-            'cart_id': cart.id,
-            'items': [
-                {
-                    'product_id': item.product.id,
-                    'product_name': item.product.name,
-                    'quantity': item.quantity,
-                    'price': item.product.price,
-                } for item in items
-            ]
-        }
-    return {'error': 'Authentication required'}, 401
+    """
+    Retrieve the current user's cart.
+    """
+    user = request.auth
+    cart = get_cart_for_user(user)
+    return cart
+

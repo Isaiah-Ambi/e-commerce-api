@@ -1,5 +1,5 @@
 from ninja import Router, Schema
-from cart.models import Cart, CartITem
+from cart.models import Cart, CartItem
 from .models import Product
 
 router = Router()
