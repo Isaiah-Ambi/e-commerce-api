@@ -1,20 +1,11 @@
-from ninja import Schema
+from ninja import Schema, ModelSchema
+from .models import Cart
+from products.schemas import ProductSchema
+from typing import List
 
-class CartItemSchema(Schema):
-    product_id: int
-    quantity: int
-    price_per_item: float
-    total_price: float
-    added_at: str  # ISO format date-time string
 
-class CartSchema(Schema):
-    id: int
-    user_id: int
-    items: list[CartItemSchema] = []
-    total_amount: float
-    created_at: str  # ISO format date-time string
-    updated_at: str  # ISO format date-time string
 
-class AddToCartSchema(Schema):
-    product_id: int
-    quantity: int
+class CartSchema(ModelSchema):
+    class Meta:
+        model = Cart
+        exclude = ['id']

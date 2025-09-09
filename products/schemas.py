@@ -1,8 +1,7 @@
-from ninja import Schema
+from ninja import ModelSchema
+from .models import Product
 
-class ProductSchema(Schema):
-    id: int
-    name: str
-    description: str
-    price: float
-    stock: int
+class ProductSchema(ModelSchema):
+    class Meta:
+        model = Product
+        exclude = ['id', 'stock']
