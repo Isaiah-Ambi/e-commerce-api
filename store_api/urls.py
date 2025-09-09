@@ -22,6 +22,8 @@ from .api import api
 # api = NinjaAPI()
 
 urlpatterns = [
-    path("api/", api.urls),
+    path('api/', api.urls),
+    path('products/', include('products.urls')),
+    path('cart/', include('cart.urls')),
     path('admin/', admin.site.urls),
 ]

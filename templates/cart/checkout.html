@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Checkout</h1>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Pay Now</button>
+  </form>
+  {% if error %}
+    <p>Error: {{ error }}</p>
+  {% endif %}
+{% endblock %}
