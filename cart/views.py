@@ -4,7 +4,11 @@ from products.models import Product
 import requests
 import os
 
-# Create your views here.
+import stripe
+
+stripe.api_key = os.getenv("API_KEY")
+
+MY_DOMAIN = "http://localhost:8000"
 
 def get_user_cart(request):
     cart, created = Cart.objects.get_or_create(user=request.user)
@@ -45,24 +49,25 @@ def checkout(request):
 
     if request.method == 'POST':
         # Create a payment intent with Stripe
-        stripe_api_key = os.getenv("API_KEY")
-        headers = {
-            'Authorization': f'Bearer {stripe_api_key}',
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
-        data = {
-            'amount': int(total_amount * 100),  # Amount in cents
-            'currency': 'usd',
-            'payment_method_types[]': 'card',
-        }
-        response = requests.post('https://api.stripe.com/v1/payment_intents', headers=headers, data=data)
-        payment_intent = response.json()
-
-        if response.status_code == 200:
-            # Redirect to Stripe's hosted payment page or handle payment confirmation
-            return redirect(f'/payment/{payment_intent["id"]}/')  # Example redirect URL
-        else:
-            error_message = payment_intent.get('error', {}).get('message', 'An error occurred while creating the payment intent.')
-            return render(request, 'cart/checkout.html', {'cart_items': cart_items, 'total_amount': total_amount, 'error': error_message})
+        check_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    'price': 'price_1Qx8zN4dM1hku9cAjvR9JJbm', # Replace with your actual price ID
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url=MY_DOMAIN + 'cart/success/',
+            cancel_url=MY_DOMAIN + 'cart/cancel/',
+        )
+        return redirect(check_session.url, code=303)
 
     return render(request, 'cart/checkout.html', {'cart_items': cart_items, 'total_amount': total_amount})
+
+def checkout_success(request):
+    cart = get_object_or_404(Cart, user=request.user)
+    cart.products.clear()  # Clear the cart after successful payment
+    return render(request, 'cart/success.html')
+
+def checkout_cancel(request):
+    return render(request, 'cart/cancel.html')
